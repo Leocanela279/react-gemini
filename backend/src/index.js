@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import { askGemini } from "./services/api.js";
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -8,11 +9,19 @@ const port = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-app.get("/health", (_req, res) => {
+app.get("/response", (_req, res) => {
   res.json({
-    ok: true,
-    supabaseConfigured: Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY),
-    geminiConfigured: Boolean(process.env.GEMINI_API_KEY)
+    data: "Hello",
+  });
+});
+
+app.post("/ask-gemini", async (req, res) => {
+  const { prompt } = req.body;
+
+  const response = await askGemini(prompt);
+
+  res.json({
+    output: response,
   });
 });
 
