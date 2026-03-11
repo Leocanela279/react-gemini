@@ -3,9 +3,14 @@ import { useState } from "react";
 export default function App() {
   const [prompt, setPrompt] = useState("");
   const [inputValue, setInputValue] = useState("");
+  const [cityValue, setCityValue] = useState("");
 
   const handleInput = (e) => {
     setInputValue(e.target.value);
+  };
+
+  const handleCityInput = (e) => {
+    setCityValue(e.target.value);
   };
 
   const handleSubmit = async () => {
@@ -15,7 +20,7 @@ export default function App() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ prompt: inputValue }),
+        body: JSON.stringify({ prompt: inputValue, ciudad: cityValue }),
       });
       if (!res.ok) {
         throw new Error("Error de la api de gemini");
@@ -42,6 +47,14 @@ export default function App() {
           htmlFor="barcelona-time"
         >
           <span className="text-sm font-semibold text-white/80">Pregunta</span>
+
+          <input
+            className="w-full rounded-[18px] border border-white/15 bg-white/6 px-5 py-4 text-base text-white outline-none transition duration-150 placeholder:text-white/40 hover:bg-white/8 focus:-translate-y-px focus:border-amber-300/75 focus:bg-white/10 focus:ring-4 focus:ring-amber-300/20"
+            type="text"
+            value={cityValue}
+            onChange={handleCityInput}
+            placeholder="Ciudad (ej. Barcelona)"
+          />
 
           <div className="flex flex-row justify-between items-center gap-4">
             <input

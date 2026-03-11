@@ -2,21 +2,40 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { askGemini } from "./services/api.js";
+import { supabase } from "./database/connection.js";
 
 const app = express();
 const port = process.env.PORT || 3001;
+const tableName = process.env.SUPABASE_TABLE || "preguntas";
 
 app.use(cors());
 app.use(express.json());
 
 app.post("/ask-gemini", async (req, res) => {
-  const { prompt } = req.body;
+  try {
+    const { prompt, ciudad } = req.body;
 
-  const response = await askGemini(prompt);
+    const output = await askGemini(prompt);
 
-  res.json({
-    output: response,
-  });
+    const { error } = await supabase.from("output_response").insert([
+      {
+        fecha: new Date().toISOString(),
+        ciudad: ciudad || "No especificada",
+        output: output,
+      },
+    ]);
+    if (error) {
+      console.error("Supabase insert error:", error.message);
+    }
+
+    res.json({
+      output,
+      dbSaved: !error,
+      dbError: error?.message ?? null,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.listen(port, () => {
